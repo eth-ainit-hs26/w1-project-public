@@ -10,7 +10,7 @@ Overview:
   - Campaign:        simulate_campaign()
   - OPRO:            baseline_meta_prompt(), run_opro()
   - Results:         show_best_hooks(), plot_runs(), compare_runs()
-  - Looking at data: plot_customer_data(), plot_segments(), plot_campaign_noise(),
+  - Looking at data: plot_customer_data(), plot_segments(), plot_campaign_outcomes(),
                      plot_all_hooks(), plot_score_vs_visit_rate()
 """
 import base64
@@ -505,7 +505,7 @@ def plot_segments(customers):
     )
     fig.show()
 
-def plot_campaign_noise(customers, hook_per_segment, visit_probability, visit_rate_per_segment, repeats=30, seed=0):
+def plot_campaign_outcomes(customers, hook_per_segment, visit_probability, visit_rate_per_segment, repeats=30, seed=0):
     """Send the same hooks `repeats` times and draw how much the visit rate jumps around per segment."""
     import matplotlib.pyplot as plt
 
@@ -524,13 +524,13 @@ def plot_campaign_noise(customers, hook_per_segment, visit_probability, visit_ra
     for ax, segment in zip(axes, SEGMENTS):
         rates = rates_per_segment[segment]
         ax.hist(rates, bins=range(0, 101, 2), color=SEGMENT_COLORS[segment], edgecolor="white")
-        ax.set_title(f"{segment}: from {round(min(rates))}% to {round(max(rates))}%", fontsize=10)
-        ax.set_xlabel("visit rate (%)")
+        ax.set_title(f"{segment}: from {round(min(rates))}% to {round(max(rates))}%", fontsize=14)
+        ax.set_xlabel("visit rate (%)", fontsize=12)
         _style(ax)
     lowest = min(min(rates) for rates in rates_per_segment.values())
     highest = max(max(rates) for rates in rates_per_segment.values())
     axes[0].set_xlim(max(0, lowest - 5), min(100, highest + 5))
-    axes[0].set_ylabel(f"campaigns (of {repeats})")
+    axes[0].set_ylabel(f"campaigns (of {repeats})", fontsize=12)
     plt.tight_layout()
     plt.show()
 

@@ -19,4 +19,4 @@ You build an AI marketing agent that writes the first line ("hook") of marketing
 | `data/personas.json` | The hidden customer descriptions, encoded. **Please don't decode them**: finding out what customers want is the point of the project. |
 
 ## Language model
-The notebook uses `google/gemma-4-E2B-it` for both writing hooks and playing the customers. If it causes problems, switch to the fallback with `marketing.setup_model(marketing.FALLBACK_MODEL)` (`Qwen/Qwen2.5-3B-Instruct`).
+The notebook uses `google/gemma-4-E2B-it` for both writing hooks and playing the customers.
