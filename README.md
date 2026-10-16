@@ -10,7 +10,7 @@ You build an AI marketing agent that writes the first line ("hook") of marketing
 ## Files
 | File | What it is |
 |---|---|
-| `project1.ipynb` | The notebook you work in (10 🎯 TODOs) |
+| `project1.ipynb` | The notebook you work in (9 🎯 TODOs) |
 | `marketing.py` | Helper functions: language model, hidden customers, campaign simulation, OPRO loop, plots. Read it if you like; you do not need to change it. |
 | `checks.py` | The ✅/❌ checks that run after the TODOs |
 | `data/customers.csv` | 700 customers |
