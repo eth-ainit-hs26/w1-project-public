@@ -1,0 +1,6 @@
+segment,name,description
+N,New customers,Signed up recently but have not bought anything yet.
+H,High-value customers,Buy often and spend a lot per order.
+R,Regular customers,Buy from us now and then.
+L,Low-budget customers,Buy cheap items and spend little per order.
+A,At-risk customers,"Used to buy regularly, have not bought for months or gave us a low satisfaction rating."

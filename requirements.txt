@@ -1,0 +1,7 @@
+# Google Colab already has all of these. For a local setup (needs an NVIDIA GPU with about 12 GB of memory):
+#   pip install -r requirements.txt
+torch
+transformers>=5.17
+accelerate
+matplotlib
+pandas
