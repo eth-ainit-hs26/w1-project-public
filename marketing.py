@@ -395,12 +395,17 @@ def plot_runs(runs):
             ax.set_title(segment)
         average = [sum(best.values()) / len(best) for best in run["best_per_round"]]
         axes[-1].plot(x, average, marker="o", label=run["label"])
-    axes[-1].set_title("average")
-    axes[0].set_ylabel("best visit rate so far")
+    axes[-1].set_title("average", fontsize=14)
+    axes[0].set_ylabel("best visit rate so far", fontsize=12)
     for ax in axes:
-        ax.set_xlabel("round")
+        ax.set_xlabel("round", fontsize=12)
         ax.set_ylim(0, 0.8)
-    axes[-1].legend(fontsize=8)
+        _style(ax)
+    
+    handles, labels = axes[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", 
+               bbox_to_anchor=(0.5, -0.12),  ncol=2, fontsize=14)
+    fig.suptitle("Meta-prompt Comparison", fontsize=18)
     plt.tight_layout()
     plt.show()
 
@@ -425,7 +430,14 @@ def compare_runs(runs):
 # ---------------------------------------------------------------------------
 
 # One fixed colour per segment, the same in every plot.
-SEGMENT_COLORS = {"N": "#2a78d6", "H": "#eb6834", "R": "#1baf7a", "L": "#eda100", "A": "#e87ba4"}
+# SEGMENT_COLORS = {"N": "#2a78d6", "H": "#eb6834", "R": "#1baf7a", "L": "#eda100", "A": "#e87ba4"}
+SEGMENT_COLORS = {
+    "N": "#648fff",  # Blue
+    "H": "#fe6100",  # Orange
+    "R": "#785ef0",  # Indigo / Purple
+    "L": "#ffb000",  # Yellow
+    "A": "#dc267f"   # Magenta
+}
 PLOT_COLOR = "#2a78d6"   # for plots with a single series
 GRID_COLOR = "#e5e5e5"
 
@@ -463,48 +475,35 @@ def plot_customer_data(customers):
     plt.tight_layout()
     plt.show()
 
-
 def plot_segments(customers):
-    """Segment sizes, and every customer as a dot coloured by segment (needs the "segment" key)."""
-    import matplotlib.pyplot as plt
+    """The spread of each metric within each segment, as box plots (needs the "segment" key)."""
+    import plotly.graph_objects as go
+    from plotly.subplots import make_subplots
 
-    fig, axes = plt.subplots(1, 3, figsize=(18, 4.5))
-
-    # Left: how many customers are in each segment
-    counts = [sum(1 for customer in customers if customer["segment"] == segment) for segment in SEGMENTS]
-    axes[0].bar(SEGMENTS, counts, color=[SEGMENT_COLORS[segment] for segment in SEGMENTS], edgecolor="white")
-    for x, count in enumerate(counts):
-        axes[0].text(x, count, str(count), ha="center", va="bottom", fontsize=9)
-    axes[0].set_title("customers per segment", fontsize=10)
-    axes[0].set_ylabel("number of customers")
-
-    # Middle and right: one dot per customer, coloured by segment
-    jitter = random.Random(0)
-    pairs = [
-        ("n_purchases", "avg_order_value", "number of orders", "average order value (CHF)"),
-        ("days_since_last_purchase", "satisfaction", "days since last order", "satisfaction (0 to 1)"),
+    metrics = [
+        ("n_purchases", "number of orders"),
+        ("avg_order_value", "average order value (CHF)"),
+        ("days_since_last_purchase", "days since last order"),
+        ("satisfaction", "satisfaction (0 to 1)"),
     ]
-    for ax, (x_column, y_column, x_label, y_label) in zip(axes[1:], pairs):
-        for segment in SEGMENTS:
-            group = [customer for customer in customers
-                     if customer["segment"] == segment and customer[x_column] is not None and customer[y_column] is not None]
-            x_values = [customer[x_column] for customer in group]
-            if x_column == "n_purchases":
-                # Order counts are whole numbers, so the dots would sit on top of each other in columns.
-                # Shift each dot a little to the side, only for the picture (the data is not changed).
-                x_values = [x + jitter.uniform(-0.3, 0.3) for x in x_values]
-            if group:
-                ax.scatter(x_values, [customer[y_column] for customer in group],
-                           s=14, alpha=0.7, color=SEGMENT_COLORS[segment], label=segment)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-        ax.legend(title="segment", fontsize=8)
-    axes[2].set_title("(customers who never ordered have no values here)", fontsize=9)
-    for ax in axes:
-        _style(ax)
-    plt.tight_layout()
-    plt.show()
 
+    fig = make_subplots(rows=1, cols=4, horizontal_spacing=0.06,
+                        subplot_titles=[title for _, title in metrics])
+
+    for i, (column, _) in enumerate(metrics):
+        for segment in SEGMENTS:
+            if segment != 'N':
+                fig.add_trace(go.Box(
+                    y=[customer[column] for customer in customers
+                      if customer["segment"] == segment and customer[column] is not None],
+                    name=segment, marker_color=SEGMENT_COLORS[segment],
+                    boxpoints="outliers", showlegend=False,
+                ), row=1, col=i + 1)
+
+    fig.update_layout(height=450, template="plotly_white", margin=dict(l=50, r=20, t=60, b=40),
+                      title=dict(text="Customer Analysis", x=0.5, y=0.98, xanchor="center")
+    )
+    fig.show()
 
 def plot_campaign_noise(customers, hook_per_segment, visit_probability, visit_rate_per_segment, repeats=30, seed=0):
     """Send the same hooks `repeats` times and draw how much the visit rate jumps around per segment."""
@@ -560,13 +559,17 @@ def plot_all_hooks(run):
             best_so_far.append(best)
         ax.plot(rounds, average, color=PLOT_COLOR, linewidth=2, marker="o", label="average of the round")
         ax.plot(rounds, best_so_far, color="#eb6834", linewidth=2, linestyle="--", label="best so far")
-        ax.set_title(segment)
-        ax.set_xlabel("round")
+        ax.set_title(segment, fontsize=14)
+        ax.set_xlabel("round", fontsize=12)
         ax.set_ylim(0, 0.8)
         _style(ax)
-    axes[0].set_ylabel("measured visit rate")
-    axes[-1].legend(fontsize=8)
-    fig.suptitle(f"All hooks of '{run['label']}'", fontsize=11)
+    axes[0].set_ylabel("measured visit rate", fontsize=12)
+    
+    handles, labels = axes[-1].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="lower center", 
+               bbox_to_anchor=(0.5, -0.1),  ncol=3, fontsize=14)
+    
+    fig.suptitle(f"All hooks of '{run['label']}'", fontsize=18)
     plt.tight_layout()
     plt.show()
 
